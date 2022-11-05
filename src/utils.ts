@@ -187,7 +187,7 @@ const resolverABI = [
 ]
 
 export function getNetworkByHost(host: string) {
-  if (host.toLowerCase().endsWith("netlify.app")) {
+  if (host.toLowerCase().endsWith("herokuapp.com")) {
     return getNetwork("mumbai");
   }
   return getNetwork("mumbai")
