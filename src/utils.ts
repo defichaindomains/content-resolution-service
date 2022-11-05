@@ -187,7 +187,7 @@ const resolverABI = [
 ]
 
 export function getNetworkByHost(host: string) {
-  if (host.toLowerCase().endsWith("dfi.is")) {
+  if (host.toLowerCase().endsWith("netlify.app")) {
     return getNetwork("mumbai");
   }
   return getNetwork("mumbai")
