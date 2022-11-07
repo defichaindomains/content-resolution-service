@@ -162,9 +162,11 @@ export function getContentHashExternalLink(encoded: string): string | undefined 
   return externalLink;
 }
 
-let resolverAddress = {};
+let resolverAddress = {
+  80001: "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605"
+};
 async function getResolverAddress(provider) {
-  const chainId: number = provider._network.chainId;
+  const chainId: number = 80001;
   if (resolverAddress[chainId]) {
     return resolverAddress[chainId];
   }
@@ -187,16 +189,13 @@ const resolverABI = [
 ]
 
 export function getNetworkByHost(host: string) {
-  if (host.toLowerCase().endsWith("herokuapp.com")) {
-    return getNetwork("mumbai");
-  }
   return getNetwork("mumbai")
 }
 
 export async function getLinks(
   domain: string, host: string
 ): Promise<{ contentHashUrl?: string, url?: string }> {
-  const { provider } = getNetworkByHost(host);
+  const { provider } = getNetwork("mumbai");
 
   try {
     const contract = new ethers.Contract(
@@ -219,7 +218,7 @@ export async function getLinks(
 export async function getContentHashRedirect(
   domain: string, host: string
 ): Promise<string | undefined> {
-  const { provider } = getNetworkByHost(host);
+  const { provider } = getNetwork("mumbai");
 
   try {
     const contract = new ethers.Contract(
@@ -237,7 +236,7 @@ export async function getContentHashRedirect(
 export async function getTextRecord(
   domain: string, field: string, host: string
 ): Promise<string | undefined> {
-  const { provider } = getNetworkByHost(host);
+  const { provider } = getNetwork("mumbai");
 
   try {
     const contract = new ethers.Contract(
