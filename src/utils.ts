@@ -199,7 +199,7 @@ export async function getLinks(
 
   try {
     const contract = new ethers.Contract(
-      await getResolverAddress(provider),
+      "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605",
       resolverABI,
       provider
     );
@@ -222,7 +222,7 @@ export async function getContentHashRedirect(
 
   try {
     const contract = new ethers.Contract(
-      await getResolverAddress(provider),
+      "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605",
       resolverABI,
       provider
     );
@@ -240,7 +240,7 @@ export async function getTextRecord(
 
   try {
     const contract = new ethers.Contract(
-      await getResolverAddress(provider),
+      "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605",
       resolverABI,
       provider
     );
@@ -263,7 +263,7 @@ export function redirectPage(url?: string) {
 
 export function notFoundPage(domain: string, host: string) {
   const url = {
-    "dfi.is": `https://app.defichain-domains.com/name/${domain}`,
+    "heroku.app": `https://app.defichain-domains.com/name/${domain}`,
   }[host];
   return `
 <!doctype html>
@@ -281,20 +281,20 @@ export function notFoundPage(domain: string, host: string) {
 
 export function rootPage(host: string) {
   const url = {
-    "dfi.is": `https://app.defichain-domains.com`,
+    "heroku.app": `https://app.defichain-domains.com`,
     
   }[host];
 
   const descriptionUrl = {
-    "dfi.is": `https://stefano.dfi.is/description`,
+    "heroku.app": `https://stefano.dfi.is/description`,
   }[host];
 
   const header = {
-    "bch.is": `defichain-domains.com`,
+    "heroku.app": `defichain-domains.com`,
   }[host];
 
   const tld = {
-    "dfi.is": `.dfi`,    
+    "heroku.app": `.dfi`,    
   }[host];
 
   return `

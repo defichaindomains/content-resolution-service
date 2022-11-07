@@ -2,7 +2,7 @@ import { Express } from 'express';
 
 import * as utils from './utils'
 
-const supportedDomains = ["dfi"]
+const supportedDomains = ["heroku"]
 
 export default function (app: Express) {
   app.all("/", async (req, res) => {
