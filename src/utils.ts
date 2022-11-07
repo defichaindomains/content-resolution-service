@@ -166,7 +166,7 @@ let resolverAddress = {
   80001: "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605"
 };
 async function getResolverAddress(provider) {
-  const chainId: number = 80001;
+  const chainId: number = provider._network.chainId;
   if (resolverAddress[chainId]) {
     return resolverAddress[chainId];
   }
@@ -189,17 +189,27 @@ const resolverABI = [
 ]
 
 export function getNetworkByHost(host: string) {
-  return getNetwork("mumbai")
+  if (host.toLowerCase().endsWith("bch.is")) {
+    return getNetwork("smartbch");
+  }
+
+  if (host.toLowerCase().endsWith("doge.wf")) {
+    return getNetwork("dogechain");
+  }
+
+  // if (host.toLowerCase().endsWith("uniw.to")) {
+    return getNetwork("mumbai");
+  // }
 }
 
 export async function getLinks(
   domain: string, host: string
 ): Promise<{ contentHashUrl?: string, url?: string }> {
-  const { provider } = getNetwork("mumbai");
+  const { provider } = getNetworkByHost(host);
 
   try {
     const contract = new ethers.Contract(
-      "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605",
+      await getResolverAddress(provider),
       resolverABI,
       provider
     );
@@ -218,11 +228,11 @@ export async function getLinks(
 export async function getContentHashRedirect(
   domain: string, host: string
 ): Promise<string | undefined> {
-  const { provider } = getNetwork("mumbai");
+  const { provider } = getNetworkByHost(host);
 
   try {
     const contract = new ethers.Contract(
-      "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605",
+      await getResolverAddress(provider),
       resolverABI,
       provider
     );
@@ -236,11 +246,11 @@ export async function getContentHashRedirect(
 export async function getTextRecord(
   domain: string, field: string, host: string
 ): Promise<string | undefined> {
-  const { provider } = getNetwork("mumbai");
+  const { provider } = getNetworkByHost(host);
 
   try {
     const contract = new ethers.Contract(
-      "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605",
+      await getResolverAddress(provider),
       resolverABI,
       provider
     );
@@ -263,7 +273,10 @@ export function redirectPage(url?: string) {
 
 export function notFoundPage(domain: string, host: string) {
   const url = {
-    "heroku.app": `https://app.defichain-domains.com/name/${domain}`,
+    "bch.is": `https://app.bch.domains/name/${domain}`,
+    "doge.wf": `https://app.dogedomains.wf/name/${domain}`,
+    "dcdomain.wf": `https://app.dogedomains.wf/name/${domain}`,
+    "uniw.to": `https://uniwens.com/name/${domain}`
   }[host];
   return `
 <!doctype html>
@@ -271,7 +284,7 @@ export function notFoundPage(domain: string, host: string) {
   <body>
     <h2>Redirect link not found for ${domain}</h2>
     <div>
-      <p>If you are owner of this Defichain Domain name, set 'ContentHash' or 'URL' at <a href="${url}">${url}</a></p>
+      <p>If you are owner of this ENS name, set 'ContentHash' or 'URL' at <a href="${url}">${url}</a></p>
       <p>This page will be used to redirect to a resolved external link first using 'ContentHash'</p>
       <p>It will fall back to a link set in 'URL' field</p>
     </div>
@@ -281,20 +294,31 @@ export function notFoundPage(domain: string, host: string) {
 
 export function rootPage(host: string) {
   const url = {
-    "heroku.app": `https://app.defichain-domains.com`,
-    
+    "bch.is": `https://app.bch.domains`,
+    "doge.wf": `https://app.dogedomains.wf`,
+    "dcdomain.wf": `https://app.dogedomains.wf`,
+    "uniw.to": `https://uniwens.com`
   }[host];
 
   const descriptionUrl = {
-    "heroku.app": `https://stefano.dfi.is/description`,
+    "bch.is": `https://lns.bch.is/description`,
+    "doge.wf": `https://dns.doge.wf/description`,
+    "dcdomain.wf": `https://dns.doge.wf/description`,
+    "uniw.to": `https://uniwens.uniw.to/description`,
   }[host];
 
   const header = {
-    "heroku.app": `defichain-domains.com`,
+    "bch.is": `bch.domains`,
+    "doge.wf": `dogedomains.wf`,
+    "dcdomain.wf": `dogedomains.wf`,
+    "uniw.to": `uniw.to`,
   }[host];
 
   const tld = {
-    "heroku.app": `.dfi`,    
+    "bch.is": `.bch`,
+    "doge.wf": `.doge`,
+    "dcdomain.wf": `.dc`,
+    "uniw.to": `.uniw`,
   }[host];
 
   return `

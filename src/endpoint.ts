@@ -2,7 +2,7 @@ import { Express } from 'express';
 
 import * as utils from './utils'
 
-const supportedDomains = ["heroku"]
+const supportedDomains = ["bch", "doge", "dc", "uniw"]
 
 export default function (app: Express) {
   app.all("/", async (req, res) => {
@@ -10,8 +10,6 @@ export default function (app: Express) {
     const host = hostParts.slice(-2).join('.');
     hostParts.pop();
     let domain = hostParts.join('.');
-
-
 
     if (supportedDomains.includes(domain)) {
       res.send(utils.rootPage(host));
@@ -38,7 +36,6 @@ export default function (app: Express) {
     const host = hostParts.slice(-2).join('.');
     hostParts.pop();
     let domain = hostParts.join('.');
-
 
     if (supportedDomains.includes(domain)) {
       res.send(utils.rootPage(host));
