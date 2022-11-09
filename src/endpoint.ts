@@ -2,7 +2,7 @@ import { Express } from 'express';
 
 import * as utils from './utils'
 
-const supportedDomains = ["bch", "doge", "dc", "uniw", "herokuapp"]
+const supportedDomains = ["dfi"]
 
 export default function (app: Express) {
   app.all("/", async (req, res) => {
@@ -10,6 +10,8 @@ export default function (app: Express) {
     const host = hostParts.slice(-2).join('.');
     hostParts.pop();
     let domain = hostParts.join('.');
+    console.log("The Host is: " + host)
+    console.log("The Domain is: " + domain)
 
     if (supportedDomains.includes(domain)) {
       res.send(utils.rootPage(host));
@@ -19,6 +21,7 @@ export default function (app: Express) {
     const links = await utils.getLinks(domain, host);
     if (links.contentHashUrl || links.url) {
       res.redirect(301, (links.contentHashUrl || links.url)!);
+      
       return;
     }
 

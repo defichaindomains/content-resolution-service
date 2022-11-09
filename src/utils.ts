@@ -1,5 +1,6 @@
 import { ethers } from "ethers"
 import getNetwork from "./network"
+import { RESOLVER_ADDRESS, DEPLOYMENT_CHAIN } from './config';
 
 const contentHash = require('@ensdomains/content-hash')
 
@@ -15,9 +16,9 @@ export const paramToTextKey = (param) => {
   const map = {
     twitter: 'com.twitter',
     github: 'com.github',
-    gitlab: 'com.gitlab',
+    discord: 'com.discord',
     reddit: 'com.reddit',
-    telegram: 'org.telegram',
+    telegram: 'com.telegram',
     email: 'email',
     url: 'url',
     avatar: 'avatar'
@@ -47,8 +48,11 @@ export const recordLink = (textKey: string, value: string) => {
     case 'com.reddit':
       url = `reddit.com/u/${value}`
       break
-    case 'org.telegram':
+    case 'com.telegram':
       url = `t.me/${value}`
+      break
+    case 'com.discord':
+      url = `discord.com/${value}`
       break
     default:
       url = `${value}`
@@ -163,7 +167,7 @@ export function getContentHashExternalLink(encoded: string): string | undefined 
 }
 
 let resolverAddress = {
-  80001: "0xDfFD5b71f14A42dCc20f8D8553a25244cb6F0605"
+  80001: RESOLVER_ADDRESS
 };
 async function getResolverAddress(provider) {
   const chainId: number = provider._network.chainId;
@@ -179,7 +183,7 @@ async function getResolverAddress(provider) {
     registryABI,
     provider
   );
-  resolverAddress[chainId] = await contract.resolver(ethers.utils.namehash('resolver.eth'));
+  resolverAddress[chainId] = await contract.resolver(ethers.utils.namehash('resolver.dfi'));
   return resolverAddress[chainId];
 }
 
@@ -188,24 +192,12 @@ const resolverABI = [
   'function text(bytes32 node, string calldata key) view returns (string memory)',
 ]
 
-export function getNetworkByHost(host: string) {
-  if (host.toLowerCase().endsWith("bch.is")) {
-    return getNetwork("smartbch");
-  }
-
-  if (host.toLowerCase().endsWith("doge.wf")) {
-    return getNetwork("dogechain");
-  }
-
-  // if (host.toLowerCase().endsWith("uniw.to")) {
-    return getNetwork("mumbai");
-  // }
-}
 
 export async function getLinks(
   domain: string, host: string
 ): Promise<{ contentHashUrl?: string, url?: string }> {
-  const { provider } = getNetworkByHost(host);
+  const { provider } = getNetwork(DEPLOYMENT_CHAIN);
+ 
 
   try {
     const contract = new ethers.Contract(
@@ -213,7 +205,9 @@ export async function getLinks(
       resolverABI,
       provider
     );
+     
     const namehash = ethers.utils.namehash(domain);
+    
     const results = await Promise.all([contract.contenthash(namehash), contract.text(namehash, 'url')]);
 
     return {
@@ -228,7 +222,7 @@ export async function getLinks(
 export async function getContentHashRedirect(
   domain: string, host: string
 ): Promise<string | undefined> {
-  const { provider } = getNetworkByHost(host);
+  const { provider } = getNetwork(DEPLOYMENT_CHAIN);
 
   try {
     const contract = new ethers.Contract(
@@ -246,7 +240,7 @@ export async function getContentHashRedirect(
 export async function getTextRecord(
   domain: string, field: string, host: string
 ): Promise<string | undefined> {
-  const { provider } = getNetworkByHost(host);
+  const { provider } = getNetwork(DEPLOYMENT_CHAIN);
 
   try {
     const contract = new ethers.Contract(
@@ -273,10 +267,7 @@ export function redirectPage(url?: string) {
 
 export function notFoundPage(domain: string, host: string) {
   const url = {
-    "bch.is": `https://app.bch.domains/name/${domain}`,
-    "doge.wf": `https://app.dogedomains.wf/name/${domain}`,
-    "dcdomain.wf": `https://app.dogedomains.wf/name/${domain}`,
-    "uniw.to": `https://uniwens.com/name/${domain}`
+    "dfi.localhost:8080": `https://app.defichain-domains.com/name/${domain}`,
   }[host];
   return `
 <!doctype html>
@@ -284,7 +275,7 @@ export function notFoundPage(domain: string, host: string) {
   <body>
     <h2>Redirect link not found for ${domain}</h2>
     <div>
-      <p>If you are owner of this ENS name, set 'ContentHash' or 'URL' at <a href="${url}">${url}</a></p>
+      <p>If you are owner of this Defichain Domain name, set 'ContentHash' or 'URL' at <a href="${url}">${url}</a></p>
       <p>This page will be used to redirect to a resolved external link first using 'ContentHash'</p>
       <p>It will fall back to a link set in 'URL' field</p>
     </div>
@@ -294,31 +285,19 @@ export function notFoundPage(domain: string, host: string) {
 
 export function rootPage(host: string) {
   const url = {
-    "bch.is": `https://app.bch.domains`,
-    "doge.wf": `https://app.dogedomains.wf`,
-    "dcdomain.wf": `https://app.dogedomains.wf`,
-    "uniw.to": `https://uniwens.com`
+    "dfi.localhost:8080": `https://app.defichain-domains.com`,
   }[host];
 
   const descriptionUrl = {
-    "bch.is": `https://lns.bch.is/description`,
-    "doge.wf": `https://dns.doge.wf/description`,
-    "dcdomain.wf": `https://dns.doge.wf/description`,
-    "uniw.to": `https://uniwens.uniw.to/description`,
+    "dfi.localhost:8080": `https://stefano.dfi.localhost:8080/bio`,
   }[host];
 
   const header = {
-    "bch.is": `bch.domains`,
-    "doge.wf": `dogedomains.wf`,
-    "dcdomain.wf": `dogedomains.wf`,
-    "uniw.to": `uniw.to`,
+    "dfi.localhost:8080": `Defichain Domains`,
   }[host];
 
   const tld = {
-    "bch.is": `.bch`,
-    "doge.wf": `.doge`,
-    "dcdomain.wf": `.dc`,
-    "uniw.to": `.uniw`,
+    "dfi.localhost:8080": `.dfi`
   }[host];
 
   return `

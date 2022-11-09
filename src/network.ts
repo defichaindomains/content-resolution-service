@@ -1,11 +1,9 @@
 import { ethers } from 'ethers';
+import { REGISTRY_ADDRESS } from './config';
 
 const NETWORK = {
   MUMBAI: 'mumbai',
-};
-
-const NETWORK_ID: any = {
-  80001: 'mumbai',
+  DEFICHAIN: 'defichain',
 };
 
 export default function getNetwork(network: string): any {
@@ -19,7 +17,15 @@ export default function getNetwork(network: string): any {
       NETWORKISH = {
         name: "mumbai",
         chainId: 80001,
-        ensAddress: "0x0277015E7cBa544a8acd4a3dB0331A74807e12ea"
+        ensAddress: REGISTRY_ADDRESS
+      }
+      break;
+    case NETWORK.DEFICHAIN:
+      RPC_URL = ``; // ADD DEFICHAIN RPC
+      NETWORKISH = {
+        name: "defichain",
+        chainId: 988,
+        ensAddress: REGISTRY_ADDRESS
       }
       break;
     
