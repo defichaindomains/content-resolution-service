@@ -1,173 +1,175 @@
-import { ethers } from "ethers"
-import getNetwork from "./network"
-import { RESOLVER_ADDRESS, DEPLOYMENT_CHAIN } from './config';
+import { ethers } from "ethers";
+import getNetwork from "./network";
+import { RESOLVER_ADDRESS, DEPLOYMENT_CHAIN } from "./config";
 
-const contentHash = require('@ensdomains/content-hash')
+const contentHash = require("@ensdomains/content-hash");
 
 export function prependUrl(url: string) {
   if (url && !url.match(/http[s]?:\/\//)) {
-    return 'https://' + url
+    return "https://" + url;
   } else {
-    return url
+    return url;
   }
 }
 
 export const paramToTextKey = (param) => {
   const map = {
-    twitter: 'com.twitter',
-    github: 'com.github',
-    discord: 'com.discord',
-    reddit: 'com.reddit',
-    telegram: 'com.telegram',
-    email: 'email',
-    url: 'url',
-    avatar: 'avatar'
-  }
+    twitter: "com.twitter",
+    github: "com.github",
+    discord: "com.discord",
+    reddit: "com.reddit",
+    telegram: "com.telegram",
+    email: "email",
+    url: "url",
+    avatar: "avatar",
+  };
   if (map[param]) {
     return [map[param], true];
   }
 
   return [param, false];
-}
+};
 
 export const recordLink = (textKey: string, value: string) => {
-  let url = ""
+  let url = "";
   switch (textKey) {
-    case 'url':
-      url = `${value}`
-      break
-    case 'com.twitter':
-      url = `twitter.com/${value}`
-      break
-    case 'com.github':
-      url = `github.com/${value}`
-      break
-    case 'com.gitlab':
-      url = `gitlab.com/${value}`
-      break
-    case 'com.reddit':
-      url = `reddit.com/u/${value}`
-      break
-    case 'com.telegram':
-      url = `t.me/${value}`
-      break
-    case 'com.discord':
-      url = `discord.com/${value}`
-      break
+    case "url":
+      url = `${value}`;
+      break;
+    case "com.twitter":
+      url = `twitter.com/${value}`;
+      break;
+    case "com.github":
+      url = `github.com/${value}`;
+      break;
+    case "com.gitlab":
+      url = `gitlab.com/${value}`;
+      break;
+    case "com.reddit":
+      url = `reddit.com/u/${value}`;
+      break;
+    case "com.telegram":
+      url = `t.me/${value}`;
+      break;
+    case "com.discord":
+      url = `discord.com/${value}`;
+      break;
     default:
-      url = `${value}`
-      break
+      url = `${value}`;
+      break;
   }
-  url = prependUrl(url)
+  url = prependUrl(url);
 
-  if (textKey === 'email') {
-    url = `mailto:${value}`
+  if (textKey === "email") {
+    url = `mailto:${value}`;
   }
 
-  return url
+  return url;
+};
+
+function matchProtocol(text: string) {
+  return (
+    text.match(/^(ipfs|sia|ipns|bzz|onion|onion3|arweave):\/\/(.*)/) ||
+    text.match(/\/(ipfs)\/(.*)/) ||
+    text.match(/\/(ipns)\/(.*)/)
+  );
 }
-
-
-function matchProtocol(text: string){
-  return text.match(/^(ipfs|sia|ipns|bzz|onion|onion3|arweave):\/\/(.*)/)
-    || text.match(/\/(ipfs)\/(.*)/)
-    || text.match(/\/(ipns)\/(.*)/)
-}
-
 
 function getProtocolType(encoded: string) {
-  let protocolType, decoded
+  let protocolType, decoded;
   try {
-    let matched = matchProtocol(encoded)
+    let matched = matchProtocol(encoded);
     if (matched) {
-      protocolType = matched[1]
-      decoded = matched[2]
+      protocolType = matched[1];
+      decoded = matched[2];
     }
     return {
       protocolType,
-      decoded
-    }
+      decoded,
+    };
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 }
 
 const ContentHashLink = (value: string) => {
-  const rslt = getProtocolType(value)
+  const rslt = getProtocolType(value);
 
-  const protocolType = rslt?.protocolType
-  const decoded = rslt?.decoded
+  const protocolType = rslt?.protocolType;
+  const decoded = rslt?.decoded;
 
-  let externalLink, url
-  if (protocolType === 'ipfs') {
-    externalLink = `https://dweb.link/ipfs/${decoded}` // using ipfs's secured origin gateway
-    url = `ipfs://${decoded}`
-  } else if (protocolType === 'ipns') {
-    externalLink = `https://dweb.link/ipns/${decoded}`
-    url = `ipns://${decoded}`
-  } else if (protocolType === 'bzz') {
-    externalLink = `https://gateway.ethswarm.org/bzz/${decoded}`
-    url = `bzz://${decoded}`
-  } else if (protocolType === 'onion' || protocolType === 'onion3') {
-    externalLink = `http://${decoded}.onion`
-    url = `onion://${decoded}`
-  } else if (protocolType === 'sia') {
-    externalLink = `https://siasky.net/${decoded}`
-    url = `sia://${decoded}`
-  } else if (protocolType === 'arweave') {
-    externalLink = `https://arweave.net/${decoded}`
-    url = `arweave://${decoded}`
+  let externalLink, url;
+  if (protocolType === "ipfs") {
+    externalLink = `https://dweb.link/ipfs/${decoded}`; // using ipfs's secured origin gateway
+    url = `ipfs://${decoded}`;
+  } else if (protocolType === "ipns") {
+    externalLink = `https://dweb.link/ipns/${decoded}`;
+    url = `ipns://${decoded}`;
+  } else if (protocolType === "bzz") {
+    externalLink = `https://gateway.ethswarm.org/bzz/${decoded}`;
+    url = `bzz://${decoded}`;
+  } else if (protocolType === "onion" || protocolType === "onion3") {
+    externalLink = `http://${decoded}.onion`;
+    url = `onion://${decoded}`;
+  } else if (protocolType === "sia") {
+    externalLink = `https://siasky.net/${decoded}`;
+    url = `sia://${decoded}`;
+  } else if (protocolType === "arweave") {
+    externalLink = `https://arweave.net/${decoded}`;
+    url = `arweave://${decoded}`;
   }
 
-  return { externalLink, url }
-}
+  return { externalLink, url };
+};
 
 export function decodeContenthash(encoded: any) {
-  let decoded, protocolType, error
-  if(!encoded || encoded === '0x'){
-    return {}
+  let decoded, protocolType, error;
+  if (!encoded || encoded === "0x") {
+    return {};
   }
   if (encoded.error) {
-    return { protocolType: null, decoded: encoded.error }
-  }else if(encoded === false){
-    return { protocolType: null, decoded: 'invalid value' }
+    return { protocolType: null, decoded: encoded.error };
+  } else if (encoded === false) {
+    return { protocolType: null, decoded: "invalid value" };
   }
   if (encoded) {
     try {
-      decoded = contentHash.decode(encoded)
-      const codec = contentHash.getCodec(encoded)
-      if (codec === 'ipfs-ns') {
-        protocolType = 'ipfs'
-      } else if (codec === 'ipns-ns') {
-        protocolType = 'ipns'
-      } else if (codec === 'swarm-ns') {
-        protocolType = 'bzz'
-      } else if (codec === 'onion') {
-        protocolType = 'onion'
-      } else if (codec === 'onion3') {
-        protocolType = 'onion3'
-      } else if (codec === 'skynet-ns') {
-        protocolType = 'sia'
-      } else if (codec === 'arweave-ns') {
-        protocolType = 'arweave'
+      decoded = contentHash.decode(encoded);
+      const codec = contentHash.getCodec(encoded);
+      if (codec === "ipfs-ns") {
+        protocolType = "ipfs";
+      } else if (codec === "ipns-ns") {
+        protocolType = "ipns";
+      } else if (codec === "swarm-ns") {
+        protocolType = "bzz";
+      } else if (codec === "onion") {
+        protocolType = "onion";
+      } else if (codec === "onion3") {
+        protocolType = "onion3";
+      } else if (codec === "skynet-ns") {
+        protocolType = "sia";
+      } else if (codec === "arweave-ns") {
+        protocolType = "arweave";
       } else {
-        decoded = encoded
+        decoded = encoded;
       }
     } catch (e: any) {
-      error = e.message
+      error = e.message;
     }
   }
-  return { protocolType, decoded, error }
+  return { protocolType, decoded, error };
 }
 
-export function getContentHashExternalLink(encoded: string): string | undefined {
+export function getContentHashExternalLink(
+  encoded: string
+): string | undefined {
   const { protocolType, decoded } = decodeContenthash(encoded);
-  const { externalLink } = ContentHashLink(`${protocolType}://${decoded}`)
+  const { externalLink } = ContentHashLink(`${protocolType}://${decoded}`);
   return externalLink;
 }
 
 let resolverAddress = {
-  80001: RESOLVER_ADDRESS
+  1130: RESOLVER_ADDRESS,
 };
 async function getResolverAddress(provider) {
   const chainId: number = provider._network.chainId;
@@ -176,28 +178,29 @@ async function getResolverAddress(provider) {
   }
 
   const registryABI = [
-    'function resolver(bytes32 node) external view returns (address)'
-  ]
+    "function resolver(bytes32 node) external view returns (address)",
+  ];
   const contract = new ethers.Contract(
     provider.network.ensAddress,
     registryABI,
     provider
   );
-  resolverAddress[chainId] = await contract.resolver(ethers.utils.namehash('resolver.dfi'));
+  resolverAddress[chainId] = await contract.resolver(
+    ethers.utils.namehash("resolver.dfi")
+  );
   return resolverAddress[chainId];
 }
 
 const resolverABI = [
-  'function contenthash(bytes32 node) view returns (bytes memory)',
-  'function text(bytes32 node, string calldata key) view returns (string memory)',
-]
-
+  "function contenthash(bytes32 node) view returns (bytes memory)",
+  "function text(bytes32 node, string calldata key) view returns (string memory)",
+];
 
 export async function getLinks(
-  domain: string, host: string
-): Promise<{ contentHashUrl?: string, url?: string }> {
+  domain: string,
+  host: string
+): Promise<{ contentHashUrl?: string; url?: string }> {
   const { provider } = getNetwork(DEPLOYMENT_CHAIN);
- 
 
   try {
     const contract = new ethers.Contract(
@@ -205,22 +208,26 @@ export async function getLinks(
       resolverABI,
       provider
     );
-     
+
     const namehash = ethers.utils.namehash(domain);
-    
-    const results = await Promise.all([contract.contenthash(namehash), contract.text(namehash, 'url')]);
+
+    const results = await Promise.all([
+      contract.contenthash(namehash),
+      contract.text(namehash, "url"),
+    ]);
 
     return {
       contentHashUrl: getContentHashExternalLink(results[0]),
-      url: results[1]
-    }
+      url: results[1],
+    };
   } catch (error) {
-    throw error
+    throw error;
   }
 }
 
 export async function getContentHashRedirect(
-  domain: string, host: string
+  domain: string,
+  host: string
 ): Promise<string | undefined> {
   const { provider } = getNetwork(DEPLOYMENT_CHAIN);
 
@@ -233,12 +240,14 @@ export async function getContentHashRedirect(
     const namehash = ethers.utils.namehash(domain);
     return getContentHashExternalLink(await contract.contenthash(namehash));
   } catch (error) {
-    throw error
+    throw error;
   }
 }
 
 export async function getTextRecord(
-  domain: string, field: string, host: string
+  domain: string,
+  field: string,
+  host: string
 ): Promise<string | undefined> {
   const { provider } = getNetwork(DEPLOYMENT_CHAIN);
 
@@ -251,7 +260,7 @@ export async function getTextRecord(
     const namehash = ethers.utils.namehash(domain);
     return contract.text(namehash, field);
   } catch (error) {
-    throw error
+    throw error;
   }
 }
 
@@ -262,12 +271,12 @@ export function redirectPage(url?: string) {
   <body>
     <script>document.location = "${url}";</script>
   </body>
-</html>`
+</html>`;
 }
 
 export function notFoundPage(domain: string, host: string) {
   const url = {
-    "dfi.localhost:8080": `https://app.defichain-domains.com/name/${domain}`,
+    "dfi.im": `https://app.defichain-domains.com/name/${domain}`,
   }[host];
   return `
 <!doctype html>
@@ -280,24 +289,24 @@ export function notFoundPage(domain: string, host: string) {
       <p>It will fall back to a link set in 'URL' field</p>
     </div>
   </body>
-</html>`
+</html>`;
 }
 
 export function rootPage(host: string) {
   const url = {
-    "dfi.localhost:8080": `https://app.defichain-domains.com`,
+    "dfi.im": `https://app.defichain-domains.com`,
   }[host];
 
   const descriptionUrl = {
-    "dfi.localhost:8080": `https://stefano.dfi.localhost:8080/bio`,
+    "dfi.im": `https://stefano.dfi.im/bio`,
   }[host];
 
   const header = {
-    "dfi.localhost:8080": `Defichain Domains`,
+    "dfi.im": `Defichain Domains`,
   }[host];
 
   const tld = {
-    "dfi.localhost:8080": `.dfi`
+    "dfi.im": `.dfi`,
   }[host];
 
   return `
@@ -312,5 +321,5 @@ export function rootPage(host: string) {
       <p>You can set content to any other field and it will be rendered in this service. E.g. <a href="${descriptionUrl}">${descriptionUrl}</a></p>
     </div>
   </body>
-</html>`
+</html>`;
 }
