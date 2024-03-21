@@ -1,9 +1,9 @@
-import { ethers } from 'ethers';
-import { REGISTRY_ADDRESS } from './config';
+import { ethers } from "ethers";
+import { REGISTRY_ADDRESS } from "./config";
 
 const NETWORK = {
-  MUMBAI: 'mumbai',
-  DEFICHAIN: 'metachain',
+  MUMBAI: "mumbai",
+  DEFICHAIN: "metachain",
 };
 
 export default function getNetwork(network: string): any {
@@ -17,23 +17,25 @@ export default function getNetwork(network: string): any {
       NETWORKISH = {
         name: "mumbai",
         chainId: 80001,
-        ensAddress: REGISTRY_ADDRESS
-      }
+        ensAddress: REGISTRY_ADDRESS,
+      };
       break;
     case NETWORK.DEFICHAIN:
-      RPC_URL = `https://eth.testnet.ocean.jellyfishsdk.com/`; 
+      RPC_URL = `https://eth.mainnet.ocean.jellyfishsdk.com/`;
       NETWORKISH = {
         name: "metachain",
         chainId: 1130,
-        ensAddress: REGISTRY_ADDRESS
-      }
+        ensAddress: REGISTRY_ADDRESS,
+      };
       break;
-    
+
     default:
       throw new Error(`Unknown network '${network}'`);
   }
 
-
-  const provider = new ethers.providers.StaticJsonRpcProvider(RPC_URL, NETWORKISH);
+  const provider = new ethers.providers.StaticJsonRpcProvider(
+    RPC_URL,
+    NETWORKISH
+  );
   return { RPC_URL, provider };
 }
