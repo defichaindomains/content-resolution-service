@@ -3,7 +3,7 @@ import { REGISTRY_ADDRESS } from './config';
 
 const NETWORK = {
   MUMBAI: 'mumbai',
-  DEFICHAIN: 'defichain',
+  DEFICHAIN: 'metachain',
 };
 
 export default function getNetwork(network: string): any {
@@ -21,10 +21,10 @@ export default function getNetwork(network: string): any {
       }
       break;
     case NETWORK.DEFICHAIN:
-      RPC_URL = ``; // ADD DEFICHAIN RPC
+      RPC_URL = `https://eth.testnet.ocean.jellyfishsdk.com/`; 
       NETWORKISH = {
-        name: "defichain",
-        chainId: 988,
+        name: "metachain",
+        chainId: 1130,
         ensAddress: REGISTRY_ADDRESS
       }
       break;
